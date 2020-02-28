@@ -20,7 +20,12 @@ public class TrustModule extends JavaModule {
 
     @Override
     public void onAccessRequest(LWCAccessEvent event) {
-        UUID owner = event.getProtection().getBukkitOwner().getUniqueId();
+        UUID owner;
+        try {
+            owner = UUID.fromString(event.getProtection().getOwner());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
         UUID requester = event.getPlayer().getUniqueId();
         List<UUID> trusted = lwcTrust.getTrustCache().load(owner);
         if (trusted.contains(requester)) {

@@ -1,0 +1,39 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+}
+
+group = project.property('pluginGroup')
+version = project.property('pluginVersion')
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'enderzone'
+        url = 'https://ci.ender.zone/plugin/repository/everything/'
+    }
+    maven {
+        name = 'codemc'
+        url = 'https://repo.codemc.org/repository/maven-public/'
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.13-R0.1-SNAPSHOT'
+    compileOnly group: 'com.griefcraft.lwc', name: 'LWCX', version: '2.2.0'
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
+}

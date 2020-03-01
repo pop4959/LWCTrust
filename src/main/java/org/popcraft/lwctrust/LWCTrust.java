@@ -86,7 +86,8 @@ public final class LWCTrust extends JavaPlugin {
             List<UUID> toTrust = new ArrayList<>();
             Arrays.stream(args).forEach(a -> {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(a);
-                if (offlinePlayer.hasPlayedBefore() && !toTrust.contains(offlinePlayer.getUniqueId())) {
+                if (offlinePlayer.hasPlayedBefore() || offlinePlayer.isOnline()
+                        && !toTrust.contains(offlinePlayer.getUniqueId())) {
                     toTrust.add(offlinePlayer.getUniqueId());
                 }
             });

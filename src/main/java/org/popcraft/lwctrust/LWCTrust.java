@@ -9,17 +9,17 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.popcraft.lwctrust.locale.FileResourceLoader;
+import org.popcraft.lwctrust.locale.UTF8Control;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public final class LWCTrust extends JavaPlugin {
 
-    private Properties messages;
+    private ResourceBundle defaultBundle, localeBundle;
     private TrustCache trustCache, confirmCache;
     private Metrics metrics;
 
@@ -34,18 +34,24 @@ public final class LWCTrust extends JavaPlugin {
             //noinspection ResultOfMethodCallIgnored
             trustDirectory.mkdir();
         }
-        // Load locale file, and backing defaults
+        // Load locales
+        String locale = this.getConfig().getString("locale", "en");
         File messageFile = new File(this.getDataFolder() + File.separator +
-                "locale_" + this.getConfig().getString("locale", "en") + ".properties");
-        try {
-            Properties defaultMessages = new Properties();
-            defaultMessages.load(new InputStreamReader(this.getResource("locale_en.properties")));
-            this.messages = new Properties(defaultMessages);
-            if (messageFile.exists()) {
-                this.messages.load(new FileReader(messageFile));
-            }
-        } catch (IOException e) {
-            this.getLogger().severe("Failed to load messages");
+                "locale_" + locale + ".properties");
+        InputStream localeResource = this.getResource("locale_" + locale + ".properties");
+        // Default locale is English
+        this.defaultBundle = ResourceBundle.getBundle("locale", Locale.ENGLISH, new UTF8Control());
+        if (messageFile.exists()) {
+            // Load a custom provided locale file from the plugin folder
+            this.localeBundle = ResourceBundle.getBundle("locale", new Locale(locale),
+                    new FileResourceLoader(this), new UTF8Control());
+        } else if (localeResource != null) {
+            // Load another valid locale that is included with the plugin
+            this.localeBundle = ResourceBundle.getBundle("locale", new Locale(locale),
+                    new UTF8Control());
+        } else {
+            // Fall back to the default locale
+            this.localeBundle = this.defaultBundle;
         }
         // Set up caches used by the plugin
         int cacheSize = this.getConfig().getInt("cache-size", 1000);
@@ -169,7 +175,9 @@ public final class LWCTrust extends JavaPlugin {
     }
 
     public String getMessage(String key, Object... args) {
-        String formattedMessage = String.format(messages.getProperty(key), args);
+        String localMessage = localeBundle.containsKey(key)
+                ? localeBundle.getString(key) : defaultBundle.getString(key);
+        String formattedMessage = String.format(localMessage, args);
         return ChatColor.translateAlternateColorCodes('&', formattedMessage);
     }
 

@@ -81,7 +81,7 @@ public final class LWCTrust extends JavaPlugin {
         boolean confirm = this.getConfig().getBoolean("confirm-action", true);
         Player player = (Player) sender;
         UUID playerUniqueId = player.getUniqueId();
-        if ("add".equalsIgnoreCase(args[0])) {
+        if ("add".equalsIgnoreCase(args[0]) && player.hasPermission("lwctrust.trust.add")) {
             // Get a list of existing unique players to add from the arguments
             List<UUID> toTrust = new ArrayList<>();
             Arrays.stream(args).forEach(a -> {
@@ -106,7 +106,7 @@ public final class LWCTrust extends JavaPlugin {
                 });
                 trustCache.save(playerUniqueId);
             }
-        } else if ("remove".equalsIgnoreCase(args[0])) {
+        } else if ("remove".equalsIgnoreCase(args[0]) && player.hasPermission("lwctrust.trust.remove")) {
             // Load a player's trusts, remove any players matching the arguments, and save
             List<UUID> trusted = trustCache.load(playerUniqueId);
             Arrays.stream(args).forEach(a -> {
@@ -116,7 +116,7 @@ public final class LWCTrust extends JavaPlugin {
                 }
             });
             trustCache.save(playerUniqueId);
-        } else if ("list".equalsIgnoreCase(args[0])) {
+        } else if ("list".equalsIgnoreCase(args[0]) && player.hasPermission("lwctrust.trust.list")) {
             // Load a player's trusts and send them a list
             List<UUID> trusted = trustCache.load(playerUniqueId);
             if (trusted.isEmpty()) {
@@ -163,7 +163,16 @@ public final class LWCTrust extends JavaPlugin {
         }
         Player player = (Player) sender;
         if (args.length == 1) {
-            List<String> completions = new ArrayList<>(Arrays.asList("add", "remove", "list"));
+            List<String> completions = new ArrayList<>();
+            if (player.hasPermission("lwctrust.trust.add")) {
+                completions.add("add");
+            }
+            if (player.hasPermission("lwctrust.trust.remove")) {
+                completions.add("remove");
+            }
+            if (player.hasPermission("lwctrust.trust.list")) {
+                completions.add("list");
+            }
             if (confirmCache.containsKey(player.getUniqueId())) {
                 completions.addAll(Arrays.asList("confirm", "cancel"));
             }

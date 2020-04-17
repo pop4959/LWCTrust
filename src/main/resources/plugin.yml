@@ -17,3 +17,7 @@ permissions:
   lwctrust.trust:
     description: Manage your protection trusts.
     default: true
+    children:
+      lwctrust.trust.add: true
+      lwctrust.trust.remove: true
+      lwctrust.trust.list: true

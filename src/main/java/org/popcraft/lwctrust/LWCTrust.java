@@ -15,6 +15,8 @@ import org.popcraft.lwctrust.locale.UTF8Control;
 import java.io.File;
 import java.io.InputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class LWCTrust extends JavaPlugin {
@@ -184,10 +186,24 @@ public final class LWCTrust extends JavaPlugin {
         }
     }
 
+    public static final Pattern RGB_PATTERN = Pattern.compile("&#[0-9a-fA-F]{6}");
+
     public String getMessage(String key, Object... args) {
         String localMessage = localeBundle.containsKey(key)
                 ? localeBundle.getString(key) : defaultBundle.getString(key);
         String formattedMessage = String.format(localMessage, args);
+        Matcher rgbMatcher = RGB_PATTERN.matcher(formattedMessage);
+        while (rgbMatcher.find()) {
+            String rgbMatch = rgbMatcher.group();
+            String rgbColor = String.valueOf(ChatColor.COLOR_CHAR) + 'x' +
+                    ChatColor.COLOR_CHAR + rgbMatch.charAt(2) +
+                    ChatColor.COLOR_CHAR + rgbMatch.charAt(3) +
+                    ChatColor.COLOR_CHAR + rgbMatch.charAt(4) +
+                    ChatColor.COLOR_CHAR + rgbMatch.charAt(5) +
+                    ChatColor.COLOR_CHAR + rgbMatch.charAt(6) +
+                    ChatColor.COLOR_CHAR + rgbMatch.charAt(7);
+            formattedMessage = formattedMessage.replaceAll(rgbMatch, rgbColor);
+        }
         return ChatColor.translateAlternateColorCodes('&', formattedMessage);
     }
 

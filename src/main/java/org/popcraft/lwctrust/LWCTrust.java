@@ -111,11 +111,10 @@ public final class LWCTrust extends JavaPlugin {
         } else if ("remove".equalsIgnoreCase(args[0]) && player.hasPermission("lwctrust.trust.remove")) {
             // Load a player's trusts, remove any players matching the arguments, and save
             List<UUID> trusted = trustCache.load(playerUniqueId);
-            Arrays.stream(args).forEach(a -> {
+            Arrays.stream(args, 1, args.length).forEach(a -> {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(a);
-                if (trusted.remove(offlinePlayer.getUniqueId())) {
-                    player.sendMessage(getMessage("trust.remove", offlinePlayer.getName()));
-                }
+                trusted.remove(offlinePlayer.getUniqueId());
+                player.sendMessage(getMessage("trust.remove", offlinePlayer.getName()));
             });
             trustCache.save(playerUniqueId);
         } else if ("list".equalsIgnoreCase(args[0]) && player.hasPermission("lwctrust.trust.list")) {
@@ -135,8 +134,8 @@ public final class LWCTrust extends JavaPlugin {
                 confirmCache.get(playerUniqueId).forEach(uuid -> {
                     if (!trusted.contains(uuid)) {
                         trusted.add(uuid);
-                        player.sendMessage(getMessage("trust.add", Bukkit.getOfflinePlayer(uuid).getName()));
                     }
+                    player.sendMessage(getMessage("trust.add", Bukkit.getOfflinePlayer(uuid).getName()));
                 });
                 confirmCache.remove(playerUniqueId);
                 trustCache.save(playerUniqueId);

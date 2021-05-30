@@ -103,7 +103,11 @@ public final class LWCTrust extends JavaPlugin {
                 toTrust.forEach(uuid -> {
                     if (!trusted.contains(uuid)) {
                         trusted.add(uuid);
-                        player.sendMessage(getMessage("trust.add", Bukkit.getOfflinePlayer(uuid).getName()));
+                    }
+                    player.sendMessage(getMessage("trust.add", Bukkit.getOfflinePlayer(uuid).getName()));
+                    Player onlinePlayer = Bukkit.getPlayer(uuid);
+                    if (onlinePlayer != null) {
+                        onlinePlayer.sendMessage(getMessage("trust.add.notify", player.getName()));
                     }
                 });
                 trustCache.save(playerUniqueId);
@@ -115,6 +119,10 @@ public final class LWCTrust extends JavaPlugin {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(a);
                 trusted.remove(offlinePlayer.getUniqueId());
                 player.sendMessage(getMessage("trust.remove", offlinePlayer.getName()));
+                Player onlinePlayer = offlinePlayer.getPlayer();
+                if (onlinePlayer != null) {
+                    onlinePlayer.sendMessage(getMessage("trust.remove.notify", player.getName()));
+                }
             });
             trustCache.save(playerUniqueId);
         } else if ("list".equalsIgnoreCase(args[0]) && player.hasPermission("lwctrust.trust.list")) {
@@ -136,6 +144,10 @@ public final class LWCTrust extends JavaPlugin {
                         trusted.add(uuid);
                     }
                     player.sendMessage(getMessage("trust.add", Bukkit.getOfflinePlayer(uuid).getName()));
+                    Player onlinePlayer = Bukkit.getPlayer(uuid);
+                    if (onlinePlayer != null) {
+                        onlinePlayer.sendMessage(getMessage("trust.add.notify", player.getName()));
+                    }
                 });
                 confirmCache.remove(playerUniqueId);
                 trustCache.save(playerUniqueId);
